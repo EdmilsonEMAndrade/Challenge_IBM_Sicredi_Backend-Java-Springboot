@@ -2,14 +2,14 @@ package br.com.edmilson.sicredi.controller;
 
 import java.util.List;
 
-import javax.websocket.server.PathParam;
-
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edmilson.sicredi.entities.Pauta;
@@ -59,6 +59,13 @@ public class PautaController {
 	@PostMapping("/abrir/{id}")
 	public ResponseEntity<?> novaPauta(@PathVariable int id) {
 		Pauta pauta = service.abrirVotacao(id);
+		return ResponseEntity.ok(pauta);
+	}
+	@ApiOperation(value="Cadastra uma nova pauta.")
+	@PostMapping("/abrir/{id}/encerra")
+	public ResponseEntity<?> novaPautaHorario(@PathVariable int id, 
+												@RequestParam(name="time") String time) {		
+		Pauta pauta = service.abrirVotacao(id, time);
 		return ResponseEntity.ok(pauta);
 	}
 	

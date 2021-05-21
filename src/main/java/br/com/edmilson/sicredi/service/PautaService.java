@@ -1,5 +1,7 @@
 package br.com.edmilson.sicredi.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.Pauta;
 import br.com.edmilson.sicredi.entities.PautaAssociado;
+import br.com.edmilson.sicredi.entities.enums.StatusPauta;
 import br.com.edmilson.sicredi.repositories.AssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaAssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaRepository;
@@ -67,7 +70,19 @@ public class PautaService {
 	public Pauta abrirVotacao(int id) {
 		Optional<Pauta> pauta = repository.findById(id);
 		if(pauta.isEmpty()) throw new ElementoNuloException("Nenhuma pauta encontrada com id: " + id);		
+		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
 		pauta.get().abrirVotacao();
+		this.salvar(pauta.get());		
+		return pauta.get();
+	}
+	public Pauta abrirVotacao(int id, String time) {
+		Optional<Pauta> pauta = repository.findById(id);		
+		if(pauta.isEmpty()) throw new ElementoNuloException("Nenhuma pauta encontrada com id: " + id);		
+		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
+		//TODO tratar erro quando time vem em formato diferente
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss"); 
+		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);		
+		pauta.get().abrirVotacao(dateTime);
 		this.salvar(pauta.get());		
 		return pauta.get();
 	}

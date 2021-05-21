@@ -6,12 +6,15 @@ import java.time.LocalDateTime;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import br.com.edmilson.sicredi.entities.enums.StatusPauta;
 import br.com.edmilson.sicredi.entities.enums.Voto;
 @Entity
 public class PautaAssociado implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
+	@JsonIgnore
 	@EmbeddedId
 	private PautaAssociadoPK id = new PautaAssociadoPK();
 	
@@ -43,10 +46,12 @@ public class PautaAssociado implements Serializable{
 		}
 	};
 	
+	@JsonIgnore
 	public Associado getAssociado() {
 		return id.getAssociado();
 	}
 	
+	@JsonIgnore
 	public Pauta getPauta() {
 		return id.getPauta();
 	}

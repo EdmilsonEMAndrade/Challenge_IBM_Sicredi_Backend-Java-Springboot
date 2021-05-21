@@ -16,8 +16,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import br.com.edmilson.sicredi.entities.enums.StatusPauta;
 import br.com.edmilson.sicredi.entities.enums.Voto;
@@ -48,7 +46,7 @@ public class Pauta implements Serializable{
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime encerrarVotacao;
 	
-	@JsonIgnore
+	
 	@OneToMany(mappedBy = "id.pauta")
 	private Set<PautaAssociado> pautaAssociado = new HashSet<>();
 	
