@@ -20,8 +20,8 @@ public class ControllerExceptionHandler {
 	}
 	@ExceptionHandler(ElementoNuloException.class)
 	public ResponseEntity<StandardError> validation(ElementoNuloException e, HttpServletRequest request){		
-		StandardError err = new StandardError(HttpStatus.NO_CONTENT.value(), e.getMessage(), System.currentTimeMillis());
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(err);		
+		StandardError err = new StandardError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), System.currentTimeMillis());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);		
 	}
 	
 }

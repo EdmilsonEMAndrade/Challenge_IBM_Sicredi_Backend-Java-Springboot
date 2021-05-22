@@ -13,28 +13,33 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.edmilson.sicredi.entities.enums.Status;
+import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @Table(name="associados", schema="pauta")
 public class Associado implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
+	@ApiModelProperty(value = "Código do associado")
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Integer id;
 	
+	@ApiModelProperty(value = "Nome do associado")
 	@NotBlank
 	@Column(nullable=false)
 	private String nome;
 	
+	@ApiModelProperty(value = "CPF do associado")
 	@NotBlank
 	@Column(nullable=false, unique=true)
 	private String cpf;
 
+	@ApiModelProperty(value = "Veridicação se o associado pode votar (ABLE_TO_VOTE)"
+			+ "	ou não pode votar (UNABLE_TO_VOTE).")
 	@Column(nullable=false)
 	private Integer status = 1;
 	

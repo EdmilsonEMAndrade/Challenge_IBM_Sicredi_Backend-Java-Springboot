@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import br.com.edmilson.sicredi.dto.PautaDTO;
 import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.Pauta;
 import br.com.edmilson.sicredi.entities.PautaAssociado;
@@ -31,29 +33,32 @@ public class PautaService {
 		this.associadoRepository = associadoRepository;
 	}
 	
-	public List<Pauta> acharTodas(){
+	public List<PautaDTO> acharTodas(){
 		List<Pauta> pautas = repository.findAll();
 		if(pautas.isEmpty()) throw new ElementoNuloException("Nenhuma pauta cadastrada");
-		return pautas;
+		List<PautaDTO> pautasdto = pautas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+		return pautasdto;
 	}
 	
-	public List<Pauta> acharTodasAbertas(){
+	public List<PautaDTO> acharTodasAbertas(){
 		List<Pauta> aprovadas = repository.findAllByStatusPauta(1);
 		if(aprovadas.isEmpty()) throw new ElementoNuloException("Nenhuma pauta aberta encontrada");		
-		return aprovadas;
+		List<PautaDTO> pautasdto = aprovadas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+		return pautasdto;
 	}
 	
-	public List<Pauta> acharTodasAprovadas(){
+	public List<PautaDTO> acharTodasAprovadas(){
 		List<Pauta> aprovadas = repository.findAllByStatusPauta(3);
 		if(aprovadas.isEmpty()) throw new ElementoNuloException("Nenhuma pauta aprovada encontrada");		
-		return aprovadas;
+		List<PautaDTO> pautasdto = aprovadas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+		return pautasdto;
 	}
 	
-	public void salvar(Pauta pauta) {
+	public PautaDTO salvar(Pauta pauta) {
 		if(pauta.getTitulo().isEmpty()) throw new ValidacaoException("Título nao pode estar em branco");
-		repository.save(pauta);
-		Optional<Pauta> pautaOpt = repository.findByTitulo(pauta.getTitulo());
-		criandoVotacao(pautaOpt.get());
+		Pauta obj = repository.save(pauta);
+		criandoVotacao(obj);
+		return new PautaDTO(obj);
 	}
 	
 	public void criandoVotacao(Pauta pauta) {
@@ -80,10 +85,16 @@ public class PautaService {
 		if(pauta.isEmpty()) throw new ElementoNuloException("Nenhuma pauta encontrada com id: " + id);		
 		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
 		//TODO tratar erro quando time vem em formato diferente
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss"); 
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm"); 
 		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);		
 		pauta.get().abrirVotacao(dateTime);
 		this.salvar(pauta.get());		
+		return pauta.get();
+	}
+
+	public Pauta acharPauta(int id) {
+		Optional<Pauta> pauta = repository.findById(id);
+		if(pauta.isEmpty()) throw new ElementoNuloException("Nenhuma pauta encontrada com id: " + id);
 		return pauta.get();
 	}
 	

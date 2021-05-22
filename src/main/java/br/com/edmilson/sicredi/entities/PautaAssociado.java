@@ -45,8 +45,7 @@ public class PautaAssociado implements Serializable{
 			this.voto = voto;			
 		}
 	};
-	
-	@JsonIgnore
+		
 	public Associado getAssociado() {
 		return id.getAssociado();
 	}
