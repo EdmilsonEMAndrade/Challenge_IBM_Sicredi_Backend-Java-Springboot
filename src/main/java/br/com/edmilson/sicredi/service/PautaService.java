@@ -78,17 +78,23 @@ public class PautaService {
 		Optional<Pauta> pauta = repository.findById(id);
 		if(pauta.isEmpty()) throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);		
 		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
+		System.out.println("Antes de abrir");
 		pauta.get().abrirVotacao();
-		this.salvar(pauta.get());		
+		System.out.println("Depois de abrir");
+		this.salvar(pauta.get());
+		System.out.println("Depois de salva");
 		return pauta.get();
 	}
+	
 	public Pauta abrirVotacao(int id, String time) {
+		
 		Optional<Pauta> pauta = repository.findById(id);		
 		if(pauta.isEmpty()) throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);		
 		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
 		//TODO tratar erro quando time vem em formato diferente
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm"); 
-		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);		
+		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+		if(dateTime.isBefore(LocalDateTime.now())) throw new ValidacaoException("Data " + dateTime + " inválida");
 		pauta.get().abrirVotacao(dateTime);
 		this.salvar(pauta.get());		
 		return pauta.get();
@@ -126,6 +132,28 @@ public class PautaService {
 			
 		}
 		throw new ValidacaoException("Erro na urna");
+	}
+
+	public PautaDTO atualizar(int id, Pauta pauta) {
+		Pauta obj = acharPauta(id);
+		if(obj.getStatusPauta()!= StatusPauta.OPEN) throw new ValidacaoException("A pauta não pode ser atualizada");
+		obj.setTitulo(pauta.getTitulo());		
+		return salvar(obj);
+	}
+
+	public PautaDTO reabrirPauta(int id) {
+		Pauta obj = acharPauta(id);
+		if(obj.getStatusPauta()!= StatusPauta.DRAW) throw new ValidacaoException("A pauta não pode ser reaberta");
+		obj.setStatusPauta(StatusPauta.OPEN);
+		String time = "4000_12_31_00_00"; 
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm"); 
+		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+		obj.setEncerrarVotacao(dateTime);
+		for(PautaAssociado x : obj.getPautaAssociado()) {
+			x.setVoto(Voto.NULO);
+		}
+		repository.save(obj);
+		return new PautaDTO(obj);
 	}
 	
 }

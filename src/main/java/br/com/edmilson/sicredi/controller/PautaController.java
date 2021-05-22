@@ -20,7 +20,6 @@ import br.com.edmilson.sicredi.entities.PautaAssociado;
 import br.com.edmilson.sicredi.service.PautaService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -72,12 +71,36 @@ public class PautaController {
 		return new ResponseEntity(obj, HttpStatus.CREATED);
 	}
 	
+	@ApiOperation(value="?cpf=12345678901&voto={Sim ou Nao}     |Associdado vota na pauta")
+	@PostMapping("/votar/{id}")
+	public ResponseEntity<PautaAssociado> votar(@PathVariable int id,
+										@RequestParam(name="cpf") String cpf,
+										@RequestParam(name="voto") String voto){
+		PautaAssociado votoInfo = service.votar(id, cpf, voto);
+		return ResponseEntity.ok(votoInfo);
+	}
+	
+	@ApiOperation(value="Atualizar a pauta")
+	@PutMapping("/id/{id}")
+	public ResponseEntity<PautaDTO> novaPauta(@PathVariable int id,
+										@RequestBody Pauta pauta) {
+		PautaDTO obj = service.atualizar(id, pauta);
+		return ResponseEntity.ok(obj);
+	}
+	
+	@ApiOperation(value="Reabir uma pauta que empatou, mas não colocará em votação")	
+	@PatchMapping("/reabrir/{id}")
+	public ResponseEntity<PautaDTO> reabrirPauta(@PathVariable int id) {
+		PautaDTO pauta = service.reabrirPauta(id);
+		return ResponseEntity.ok(pauta);
+	}
+	
 	@ApiOperation(value="Abrir a votação com encerramento em 1 min.")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})
 	@PatchMapping("/abrir/{id}")
-	public ResponseEntity<Pauta> novaPauta(@PathVariable int id) {
+	public ResponseEntity<Pauta> abrirPauta(@PathVariable int id) {
 		Pauta pauta = service.abrirVotacao(id);
 		return ResponseEntity.ok(pauta);
 	}
@@ -93,14 +116,7 @@ public class PautaController {
 		return ResponseEntity.ok(pauta);
 	}
 	
-	@ApiOperation(value="?cpf=12345678901&voto={Sim ou Nao}     |Associdado vota na pauta")
-	@PutMapping("/votar/{id}")
-	public ResponseEntity<PautaAssociado> votar(@PathVariable int id,
-										@RequestParam(name="cpf") String cpf,
-										@RequestParam(name="voto") String voto){
-		PautaAssociado votoInfo = service.votar(id, cpf, voto);
-		return ResponseEntity.ok(votoInfo);
-	}
+	
 	
 	
 

@@ -18,7 +18,7 @@ public class PautaAssociado implements Serializable{
 	@EmbeddedId
 	private PautaAssociadoPK id = new PautaAssociadoPK();
 	
-	private Voto voto;
+	private Integer voto = 2;
 
 	public PautaAssociado() {}
 
@@ -36,13 +36,13 @@ public class PautaAssociado implements Serializable{
 	}
 
 	public Voto getVoto() {
-		return voto;
-	}
+		return Voto.toEnum(voto);
+	}	
 
 	public void setVoto(Voto voto) {
 		if(getPauta().getEncerrarVotacao().isAfter(LocalDateTime.now())
 				&& getPauta().getStatusPauta() == StatusPauta.IN_VOTING) {
-			this.voto = voto;			
+			this.voto = voto.getCod();			
 		}
 	};
 		
