@@ -3,7 +3,7 @@ package br.com.edmilson.sicredi.entities.enums;
 public enum Voto {
 		SIM (1,"Sim"),
 		NAO (0, "Não"),
-		NULO(2,"Nulo");
+		SEM_VOTO(2,"Sem Voto");
 		
 		
 		private Integer cod;
