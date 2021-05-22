@@ -5,16 +5,18 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edmilson.sicredi.dto.PautaDTO;
-import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.Pauta;
+import br.com.edmilson.sicredi.entities.PautaAssociado;
 import br.com.edmilson.sicredi.service.PautaService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -74,21 +76,30 @@ public class PautaController {
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})
-	@PostMapping("/abrir/{id}")
+	@PatchMapping("/abrir/{id}")
 	public ResponseEntity<Pauta> novaPauta(@PathVariable int id) {
 		Pauta pauta = service.abrirVotacao(id);
 		return ResponseEntity.ok(pauta);
 	}
-	@ApiOperation(value="?time=yyyy_MM_dd_HH_mm        |Abrir a votação, definindo o seu encerramento através do time", httpMethod = "Post")
+	
+	@ApiOperation(value="?time=yyyy_MM_dd_HH_mm        |Abrir a votação, definindo o seu encerramento através do time")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
-		})
-	@ApiParam(format = "?time=yyyy_MM_dd_HH_mm")
-	@PostMapping("/abrir/{id}/encerra")
+		})	
+	@PatchMapping("/abrir/{id}/encerra")
 	public ResponseEntity<Pauta> novaPautaHorario(@PathVariable int id, 
 												@RequestParam(name="time") String time) {		
 		Pauta pauta = service.abrirVotacao(id, time);
 		return ResponseEntity.ok(pauta);
+	}
+	
+	@ApiOperation(value="?cpf=12345678901&voto={Sim ou Nao}     |Associdado vota na pauta")
+	@PutMapping("/votar/{id}")
+	public ResponseEntity<PautaAssociado> votar(@PathVariable int id,
+										@RequestParam(name="cpf") String cpf,
+										@RequestParam(name="voto") String voto){
+		PautaAssociado votoInfo = service.votar(id, cpf, voto);
+		return ResponseEntity.ok(votoInfo);
 	}
 	
 	
