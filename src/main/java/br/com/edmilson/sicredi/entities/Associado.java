@@ -47,6 +47,9 @@ public class Associado implements Serializable{
 	@OneToMany(mappedBy = "id.associado")
 	private Set<PautaAssociado> pautaAssociado = new HashSet<>();
 	
+	@JsonIgnore
+	private boolean ativo = true;
+	
 	public Associado() {}	
 
 	public Integer getId() {
@@ -87,6 +90,14 @@ public class Associado implements Serializable{
 
 	public void setPautaAssociado(Set<PautaAssociado> pautaAssociado) {
 		this.pautaAssociado = pautaAssociado;
+	}
+	
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Override

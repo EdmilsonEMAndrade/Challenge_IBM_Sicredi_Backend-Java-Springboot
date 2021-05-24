@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +22,20 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping("/associados")
+@RequestMapping("/v1/associados")
 @Api(value="Desafio Pauta")
 public class AssociadoController {
 	private AssociadoService service;
 
 	public AssociadoController(AssociadoService service) {
 		this.service = service;
+	}
+	
+	@ApiOperation(value="Procura associado pelo ID")
+	@GetMapping("/id/{id}")
+	public ResponseEntity<Associado> acharAssociado(@PathVariable int id){
+		Associado associados = service.acharAssociado(id);
+		return ResponseEntity.ok(associados);
 	}
 	
 	@ApiOperation(value="Mostra todos associados.")
@@ -50,6 +59,13 @@ public class AssociadoController {
 		return ResponseEntity.ok(aptos);
 	}
 	
+	@ApiOperation(value="Reativar associado pelo ID. Por padrão recebe status:UNABLE_TO_VOTE")
+	@PostMapping("/id/{id}")
+	public ResponseEntity<Associado> ativarAssociado(@PathVariable int id) {
+		Associado associado = service.ativarAssociado(id);
+		return ResponseEntity.ok(associado);
+	}
+	
 	@ApiOperation(value="Cadastra um novo associado. Por padrão recebe status:ABLE_TO_VOTE")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 201, response = Associado.class, message = "Created"),
@@ -59,6 +75,21 @@ public class AssociadoController {
 	public ResponseEntity novoAssociado(@RequestBody Associado associado) {
 		Associado obj = service.salvar(associado);		
 		return new ResponseEntity(obj, HttpStatus.CREATED);
+	}
+	
+	@ApiOperation(value="Mudar Status de votação")
+	@PatchMapping("/id/{id}")
+	public ResponseEntity<Associado> mudarStatus(@PathVariable int id,
+													@RequestBody Associado associado){
+		Associado response = service.mudarStatus(id, associado.getStatus());
+		return ResponseEntity.ok(response);
+	}
+	
+	@ApiOperation(value="Deleta associado pelo ID")
+	@DeleteMapping("/id/{id}")
+	public ResponseEntity<Void> deletarAssociado(@PathVariable int id){
+		service.delete(id);
+		return ResponseEntity.noContent().build();
 	}
 	
 	

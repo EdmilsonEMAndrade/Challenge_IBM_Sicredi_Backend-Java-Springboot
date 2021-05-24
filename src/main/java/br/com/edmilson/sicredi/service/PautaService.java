@@ -23,10 +23,10 @@ import br.com.edmilson.sicredi.validation.CPF;
 
 @Service
 public class PautaService {
-	
+
 	PautaRepository repository;
 	PautaAssociadoRepository votacaoRepository;
-	AssociadoRepository associadoRepository;	
+	AssociadoRepository associadoRepository;
 
 	public PautaService(PautaRepository repository, PautaAssociadoRepository votacaoRepository,
 			AssociadoRepository associadoRepository) {
@@ -34,126 +34,157 @@ public class PautaService {
 		this.votacaoRepository = votacaoRepository;
 		this.associadoRepository = associadoRepository;
 	}
-	
-	public List<PautaDTO> acharTodas(){
+
+	public Pauta acharPauta(int id) {
+		Optional<Pauta> pauta = repository.findById(id);
+		if (pauta.isEmpty() || !pauta.get().isAtivo())
+			throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);
+		return pauta.get();
+	}	
+
+	public List<PautaDTO> acharTodas() {
 		List<Pauta> pautas = repository.findAll();
-		if(pautas.isEmpty()) throw new ValidacaoException("Nenhuma pauta cadastrada");
-		List<PautaDTO> pautasdto = pautas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+		List<PautaDTO> pautasdto = pautasValidas(pautas);
+		
 		return pautasdto;
 	}
-	
-	public List<PautaDTO> acharTodasAbertas(){
-		List<Pauta> aprovadas = repository.findAllByStatusPauta(1);
-		if(aprovadas.isEmpty()) throw new ValidacaoException("Nenhuma pauta aberta encontrada");		
-		List<PautaDTO> pautasdto = aprovadas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+
+	public List<PautaDTO> acharTodasAbertas() {
+		List<Pauta> pautas = repository.findAllByStatusPauta(1);
+		List<PautaDTO> pautasdto = pautasValidas(pautas);		
 		return pautasdto;
 	}
-	
-	public List<PautaDTO> acharTodasAprovadas(){
-		List<Pauta> aprovadas = repository.findAllByStatusPauta(3);
-		if(aprovadas.isEmpty()) throw new ValidacaoException("Nenhuma pauta aprovada encontrada");		
-		List<PautaDTO> pautasdto = aprovadas.stream().map(x->new PautaDTO(x)).collect(Collectors.toList());
+
+	public List<PautaDTO> acharTodasAprovadas() {
+		List<Pauta> pautas = repository.findAllByStatusPauta(3);
+		List<PautaDTO> pautasdto = pautasValidas(pautas);		
 		return pautasdto;
 	}
-	
+
 	public PautaDTO salvar(Pauta pauta) {
-		if(pauta.getTitulo().isEmpty()) throw new ValidacaoException("Título nao pode estar em branco");
+		if (pauta.getTitulo().isEmpty())
+			throw new ValidacaoException("Título nao pode estar em branco");
 		Pauta obj = repository.save(pauta);
 		criandoVotacao(obj);
 		return new PautaDTO(obj);
 	}
-	
+
 	public void criandoVotacao(Pauta pauta) {
 		List<Associado> aptosVotar = associadoRepository.findAllByStatus(1);
-		if(aptosVotar.isEmpty()) throw new ValidacaoException("Nenhum associado está apto para votar");	
+		if (aptosVotar.isEmpty())
+			throw new ValidacaoException("A pauta não pode ser criada sem associados aptos a votarem");
 		for (Associado x : aptosVotar) {
 			PautaAssociado votacao = new PautaAssociado(x, pauta);
 			x.getPautaAssociado().add(votacao);
 			pauta.getPautaAssociado().add(votacao);
-			votacaoRepository.save(new PautaAssociado(x, pauta));			
+			votacaoRepository.save(new PautaAssociado(x, pauta));
 		}
 	}
-	
+
 	public Pauta abrirVotacao(int id) {
-		Optional<Pauta> pauta = repository.findById(id);
-		if(pauta.isEmpty()) throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);		
-		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
-		System.out.println("Antes de abrir");
-		pauta.get().abrirVotacao();
-		System.out.println("Depois de abrir");
-		this.salvar(pauta.get());
-		System.out.println("Depois de salva");
-		return pauta.get();
-	}
-	
-	public Pauta abrirVotacao(int id, String time) {
-		
-		Optional<Pauta> pauta = repository.findById(id);		
-		if(pauta.isEmpty()) throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);		
-		if(!pauta.get().getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");
-		//TODO tratar erro quando time vem em formato diferente
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm"); 
-		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
-		if(dateTime.isBefore(LocalDateTime.now())) throw new ValidacaoException("Data " + dateTime + " inválida");
-		pauta.get().abrirVotacao(dateTime);
-		this.salvar(pauta.get());		
-		return pauta.get();
+		Pauta pauta = acharPauta(id);
+		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");		
+		pauta.abrirVotacao();
+		this.salvar(pauta);
+		return pauta;
 	}
 
-	public Pauta acharPauta(int id) {
-		Optional<Pauta> pauta = repository.findById(id);
-		if(pauta.isEmpty()) throw new ValidacaoException("Nenhuma pauta encontrada com id: " + id);
-		return pauta.get();
+	public Pauta abrirVotacao(int id, String time) {
+		Pauta pauta = acharPauta(id);		
+		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN))
+			throw new ValidacaoException("Pauta já foi aberta para votação");
+		// TODO tratar erro quando time vem em formato diferente
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
+		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+		if (dateTime.isBefore(LocalDateTime.now()))
+			throw new ValidacaoException("Data " + dateTime + " inválida");
+		pauta.abrirVotacao(dateTime);
+		this.salvar(pauta);
+		return pauta;
 	}
-	
+
 	public PautaAssociado votar(int id, String cpf, String voto) {
 		Pauta pauta = acharPauta(id);
-		if(pauta.getStatusPauta()!= StatusPauta.IN_VOTING) throw new ValidacaoException("Pauta não está em votação");
-		if(cpf.length()!= 11) throw new ValidacaoException("CPF contém 11 digitos");
-		Optional<Associado> optAssociado = associadoRepository.findByCpf(cpf);
-		if(optAssociado.isEmpty())throw new ValidacaoException("Nenhuma associado encontrada com cpf: " + CPF.imprimeCPF(cpf));
-		if(optAssociado.get().getStatus()!= Status.ABLE_TO_VOTE) throw new ValidacaoException("Associado não está apto a votar");
-		
+
+		if (pauta.getStatusPauta() != StatusPauta.IN_VOTING)
+			throw new ValidacaoException("Pauta não está em votação");
+
+		Associado associado = validarCPF(cpf);
+
+		if (associado.getStatus() == Status.UNABLE_TO_VOTE)
+			throw new ValidacaoException("Associado não está apto a votar");
+
 		for (PautaAssociado x : pauta.getPautaAssociado()) {
-			if(x.getAssociado() == optAssociado.get()) {
-				
-				if(voto.equalsIgnoreCase("sim")) {
-					x.setVoto(Voto.SIM);
-					votacaoRepository.save(x);
-					return x;
-				}else if(voto.equalsIgnoreCase("nao")) {
-					x.setVoto(Voto.NAO);
-					votacaoRepository.save(x);
-					return x;
-				}else {
-					throw new ValidacaoException("Voto inválido");
+			if (x.getAssociado() == associado) {
+				if (x.getVoto() == Voto.SEM_VOTO) {
+					if (voto.equalsIgnoreCase("sim")) {
+						x.setVoto(Voto.SIM);
+						votacaoRepository.save(x);
+						return x;
+					} else if (voto.equalsIgnoreCase("nao")) {
+						x.setVoto(Voto.NAO);
+						votacaoRepository.save(x);
+						return x;
+					} else {
+						throw new ValidacaoException("Voto inválido");
+					}
+				} else {
+					throw new ValidacaoException("Associado "+associado.getNome()+" já votou");
 				}
 			}
-			
 		}
 		throw new ValidacaoException("Erro na urna");
 	}
 
 	public PautaDTO atualizar(int id, Pauta pauta) {
 		Pauta obj = acharPauta(id);
-		if(obj.getStatusPauta()!= StatusPauta.OPEN) throw new ValidacaoException("A pauta não pode ser atualizada");
-		obj.setTitulo(pauta.getTitulo());		
+		if (obj.getStatusPauta() != StatusPauta.OPEN)
+			throw new ValidacaoException("Pautas votadas ou em votação não podem ser alteradas");
+		obj.setTitulo(pauta.getTitulo());
 		return salvar(obj);
 	}
 
 	public PautaDTO reabrirPauta(int id) {
-		Pauta obj = acharPauta(id);
-		if(obj.getStatusPauta()!= StatusPauta.DRAW) throw new ValidacaoException("A pauta não pode ser reaberta");
-		obj.setStatusPauta(StatusPauta.OPEN);
-		String time = "4000_12_31_00_00"; 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm"); 
+		Pauta pauta = acharPauta(id);
+		if (pauta.getStatusPauta() != StatusPauta.DRAW)
+			throw new ValidacaoException("A pauta não pode ser reaberta");
+		pauta.setStatusPauta(StatusPauta.OPEN);
+		String time = "4000_12_31_00_00";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
-		obj.setEncerrarVotacao(dateTime);
-		for(PautaAssociado x : obj.getPautaAssociado()) {
-			x.setVoto(Voto.NULO);
+		pauta.setEncerrarVotacao(dateTime);
+		for (PautaAssociado x : pauta.getPautaAssociado()) {
+			x.setVoto(Voto.SEM_VOTO);
 		}
-		repository.save(obj);
-		return new PautaDTO(obj);
+		repository.save(pauta);
+		return new PautaDTO(pauta);
+	}	
+
+	public void deletarPauta(int id) {
+		Pauta pauta = acharPauta(id);
+		if(pauta.getStatusPauta()!=StatusPauta.OPEN) throw new ValidacaoException("Pautas votadas ou em votação não podem ser deletadas");
+		pauta.setAtivo();
+		repository.save(pauta);
 	}
 	
+	private Associado validarCPF(String cpf) {
+		if (cpf.isEmpty())
+			throw new ValidacaoException("Precisa preencher o CPF");
+		if (cpf.length() != 11)
+			throw new ValidacaoException("CPF possui 11 digitos");
+		if (!CPF.isCPF(cpf))
+			throw new ValidacaoException("CPF " + CPF.imprimeCPF(cpf) + " é inválido");
+		Optional<Associado> optAssociado = associadoRepository.findByCpf(cpf);
+		if (optAssociado.isEmpty())
+			throw new ValidacaoException("Nenhuma associado encontrada com cpf: " + CPF.imprimeCPF(cpf));
+		return optAssociado.get();
+	}
+	
+	private List<PautaDTO> pautasValidas(List<Pauta> pautas){
+		pautas = pautas.stream().filter(x->x.isAtivo()).collect(Collectors.toList());
+		if (pautas.isEmpty())
+			throw new ValidacaoException("Nenhuma pauta cadastrada");
+		List<PautaDTO> pautasdto = pautas.stream().map(x -> new PautaDTO(x)).collect(Collectors.toList());
+		return pautasdto;
+	}
 }

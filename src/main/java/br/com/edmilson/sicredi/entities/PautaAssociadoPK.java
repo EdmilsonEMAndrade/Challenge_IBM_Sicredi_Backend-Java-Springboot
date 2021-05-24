@@ -16,7 +16,8 @@ public class PautaAssociadoPK implements Serializable{
 	
 	@ManyToOne
 	@JoinColumn(name="pauta_id")
-	private Pauta pauta;
+	private Pauta pauta;	
+
 	
 	public Associado getAssociado() {
 		return associado;

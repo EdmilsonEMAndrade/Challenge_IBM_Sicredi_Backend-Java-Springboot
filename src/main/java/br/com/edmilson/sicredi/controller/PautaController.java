@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping("/pautas")
+@RequestMapping("/v1/pautas")
 @Api(value="Desafio Pauta")
 public class PautaController {
 	private PautaService service;
@@ -80,16 +80,8 @@ public class PautaController {
 		return ResponseEntity.ok(votoInfo);
 	}
 	
-	@ApiOperation(value="Atualizar a pauta")
-	@PutMapping("/id/{id}")
-	public ResponseEntity<PautaDTO> novaPauta(@PathVariable int id,
-										@RequestBody Pauta pauta) {
-		PautaDTO obj = service.atualizar(id, pauta);
-		return ResponseEntity.ok(obj);
-	}
-	
 	@ApiOperation(value="Reabir uma pauta que empatou, mas não colocará em votação")	
-	@PatchMapping("/reabrir/{id}")
+	@PostMapping("/reabrir/{id}")
 	public ResponseEntity<PautaDTO> reabrirPauta(@PathVariable int id) {
 		PautaDTO pauta = service.reabrirPauta(id);
 		return ResponseEntity.ok(pauta);
@@ -99,7 +91,7 @@ public class PautaController {
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})
-	@PatchMapping("/abrir/{id}")
+	@PostMapping("/abrir/{id}")
 	public ResponseEntity<Pauta> abrirPauta(@PathVariable int id) {
 		Pauta pauta = service.abrirVotacao(id);
 		return ResponseEntity.ok(pauta);
@@ -109,15 +101,26 @@ public class PautaController {
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})	
-	@PatchMapping("/abrir/{id}/encerra")
+	@PostMapping("/abrir/{id}/encerra")
 	public ResponseEntity<Pauta> novaPautaHorario(@PathVariable int id, 
 												@RequestParam(name="time") String time) {		
 		Pauta pauta = service.abrirVotacao(id, time);
 		return ResponseEntity.ok(pauta);
 	}
 	
+	@ApiOperation(value="Atualizar a pauta")
+	@PutMapping("/id/{id}")
+	public ResponseEntity<PautaDTO> novaPauta(@PathVariable int id,
+										@RequestBody Pauta pauta) {
+		PautaDTO obj = service.atualizar(id, pauta);
+		return ResponseEntity.ok(obj);
+	}	
 	
-	
-	
+	@ApiOperation(value="Deletar Pauta não votada")
+	@DeleteMapping("/id/{id}")
+	public ResponseEntity<Void> deletarPauta(@PathVariable int id) {
+		service.deletarPauta(id);
+		return ResponseEntity.noContent().build();
+	}
 
 }
