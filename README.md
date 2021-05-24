@@ -20,7 +20,6 @@ Exercício proposto pela IBM baseado em um dos testes aplicados pelo Sicredi env
 - Maven
 - Swagger
 ## Implantação em produção
-- Back end: Heroku
 - Banco de dados: Postgresql
 
 # Como executar o projeto
