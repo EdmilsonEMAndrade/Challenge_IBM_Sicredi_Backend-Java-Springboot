@@ -87,23 +87,14 @@ public class PautaController {
 		return ResponseEntity.ok(pauta);
 	}
 	
-	@ApiOperation(value="Abrir a votação com encerramento em 1 min.")
-	@ApiResponses(value = {	
-		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
-		})
-	@PostMapping("/abrir/{id}")
-	public ResponseEntity<Pauta> abrirPauta(@PathVariable int id) {
-		Pauta pauta = service.abrirVotacao(id);
-		return ResponseEntity.ok(pauta);
-	}
-	
-	@ApiOperation(value="?time=yyyy_MM_dd_HH_mm        |Abrir a votação, definindo o seu encerramento através do time")
+	@ApiOperation(value="?time=yyyy_MM_dd_HH_mm        |Abrirá a votação, podendo ou não indicar o dia e horário de termino."
+																	+ "Por padrão é de 1 minuto.")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})	
-	@PostMapping("/abrir/{id}/encerra")
+	@PostMapping("/abrir/{id}")
 	public ResponseEntity<Pauta> novaPautaHorario(@PathVariable int id, 
-												@RequestParam(name="time") String time) {		
+												@RequestParam(required = false, name="time") String time) {		
 		Pauta pauta = service.abrirVotacao(id, time);
 		return ResponseEntity.ok(pauta);
 	}

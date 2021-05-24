@@ -65,28 +65,17 @@ public class PautaService {
 		if (pauta.getTitulo().isEmpty())
 			throw new ValidacaoException("Título nao pode estar em branco");
 		Pauta obj = repository.save(pauta);
-		criandoVotacao(obj);
+		
 		return new PautaDTO(obj);
 	}
 
 	public void criandoVotacao(Pauta pauta) {
 		List<Associado> aptosVotar = associadoRepository.findAllByStatus(1);
 		if (aptosVotar.isEmpty())
-			throw new ValidacaoException("A pauta não pode ser criada sem associados aptos a votarem");
-		for (Associado x : aptosVotar) {
-			PautaAssociado votacao = new PautaAssociado(x, pauta);
-			x.getPautaAssociado().add(votacao);
-			pauta.getPautaAssociado().add(votacao);
+			throw new ValidacaoException("Não pode ser aberta a votação, pois não temos associados aptos à votar");
+		for (Associado x : aptosVotar) {			
 			votacaoRepository.save(new PautaAssociado(x, pauta));
 		}
-	}
-
-	public Pauta abrirVotacao(int id) {
-		Pauta pauta = acharPauta(id);
-		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN)) throw new ValidacaoException("Pauta já foi aberta para votação");		
-		pauta.abrirVotacao();
-		this.salvar(pauta);
-		return pauta;
 	}
 
 	public Pauta abrirVotacao(int id, String time) {
@@ -94,11 +83,16 @@ public class PautaService {
 		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN))
 			throw new ValidacaoException("Pauta já foi aberta para votação");
 		// TODO tratar erro quando time vem em formato diferente
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
-		LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
-		if (dateTime.isBefore(LocalDateTime.now()))
-			throw new ValidacaoException("Data " + dateTime + " inválida");
-		pauta.abrirVotacao(dateTime);
+		if(time != null) {			
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
+			LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+			if (dateTime.isBefore(LocalDateTime.now()))
+				throw new ValidacaoException("Data " + dateTime + " inválida");
+			pauta.abrirVotacao(dateTime);			
+		}else {
+			pauta.abrirVotacao();
+		}
+		criandoVotacao(pauta);
 		this.salvar(pauta);
 		return pauta;
 	}
