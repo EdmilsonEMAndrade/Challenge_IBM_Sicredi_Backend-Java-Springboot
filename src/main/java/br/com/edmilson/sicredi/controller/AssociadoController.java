@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edmilson.sicredi.entities.Associado;
@@ -77,11 +78,11 @@ public class AssociadoController {
 		return new ResponseEntity(obj, HttpStatus.CREATED);
 	}
 	
-	@ApiOperation(value="Mudar Status de votação")
+	@ApiOperation(value="?status= ABLE_TO_VOTE || UNABLE_TO_VOTE      |Mudar Status de votação")
 	@PatchMapping("/id/{id}")
 	public ResponseEntity<Associado> mudarStatus(@PathVariable int id,
-													@RequestBody Associado associado){
-		Associado response = service.mudarStatus(id, associado.getStatus());
+													@RequestParam(name="status") String status){
+		Associado response = service.mudarStatus(id, status);
 		return ResponseEntity.ok(response);
 	}
 	

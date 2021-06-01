@@ -18,8 +18,10 @@ import br.com.edmilson.sicredi.entities.enums.Voto;
 import br.com.edmilson.sicredi.repositories.AssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaAssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaRepository;
+import br.com.edmilson.sicredi.service.excepitions.EntityNullEception;
 import br.com.edmilson.sicredi.service.excepitions.ValidacaoException;
 import br.com.edmilson.sicredi.validation.CPF;
+import br.com.edmilson.sicredi.validation.Time;
 
 @Service
 public class PautaService {
@@ -42,23 +44,16 @@ public class PautaService {
 		return pauta.get();
 	}	
 
-	public List<PautaDTO> acharTodas() {
-		List<Pauta> pautas = repository.findAll();
-		List<PautaDTO> pautasdto = pautasValidas(pautas);
-		
-		return pautasdto;
+	public List<PautaDTO> acharTodas() {		
+		return pautasValidas(repository.findAll());		
 	}
 
-	public List<PautaDTO> acharTodasAbertas() {
-		List<Pauta> pautas = repository.findAllByStatusPauta(1);
-		List<PautaDTO> pautasdto = pautasValidas(pautas);		
-		return pautasdto;
-	}
+	public List<PautaDTO> acharTodasAbertas() {		
+		return pautasValidas(repository.findAllByStatusPauta(1));		
+	}		
 
 	public List<PautaDTO> acharTodasAprovadas() {
-		List<Pauta> pautas = repository.findAllByStatusPauta(3);
-		List<PautaDTO> pautasdto = pautasValidas(pautas);		
-		return pautasdto;
+		return pautasValidas(repository.findAllByStatusPauta(3));
 	}
 
 	public PautaDTO salvar(Pauta pauta) {
@@ -81,13 +76,16 @@ public class PautaService {
 	public Pauta abrirVotacao(int id, String time) {
 		Pauta pauta = acharPauta(id);		
 		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN))
-			throw new ValidacaoException("Pauta já foi aberta para votação");
-		// TODO tratar erro quando time vem em formato diferente
+			throw new ValidacaoException("Pauta já foi aberta para votação");		
 		if(time != null) {			
+			if(!Time.isFormatTime(time)) throw new ValidacaoException("O tempo precisa estar no formado yyyy_MM_dd_HH_mm");
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 			LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
-			if (dateTime.isBefore(LocalDateTime.now()))
-				throw new ValidacaoException("Data " + dateTime + " inválida");
+			if (dateTime.isBefore(LocalDateTime.now())) {
+				formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+				throw new ValidacaoException("Data inválida. " + dateTime.format(formatter)+ " já passou. Precisa informar uma data acima de " 
+																							+ LocalDateTime.now().format(formatter) + "." );
+			}
 			pauta.abrirVotacao(dateTime);			
 		}else {
 			pauta.abrirVotacao();
@@ -176,9 +174,8 @@ public class PautaService {
 	
 	private List<PautaDTO> pautasValidas(List<Pauta> pautas){
 		pautas = pautas.stream().filter(x->x.isAtivo()).collect(Collectors.toList());
-		if (pautas.isEmpty())
-			throw new ValidacaoException("Nenhuma pauta cadastrada");
-		List<PautaDTO> pautasdto = pautas.stream().map(x -> new PautaDTO(x)).collect(Collectors.toList());
-		return pautasdto;
+		if (pautas.isEmpty())throw new EntityNullEception("Nenhuma pauta cadastrada");
+		
+		return pautas.stream().map(x -> new PautaDTO(x)).collect(Collectors.toList());		
 	}
 }
