@@ -52,9 +52,10 @@ public class AssociadoService {
 	}
 	
 	public Associado ativarAssociado(int id) {
-		Associado associado = verificarAssociado(id);
-		associado.setAtivo(true);
-		return repository.save(associado);		
+		Optional<Associado> associadoOpt = repository.findById(id);
+		if(associadoOpt.isEmpty()) throw new ValidacaoException("Nenhum associado encontrado");
+		associadoOpt.get().setAtivo(true);
+		return repository.save(associadoOpt.get());		
 	}
 	
 	public Associado mudarStatus(int id, String status) {		
@@ -73,6 +74,7 @@ public class AssociadoService {
 	private Associado verificarAssociado(int id) {
 		Optional<Associado> associado = repository.findById(id);
 		if(associado.isEmpty()) throw new ValidacaoException("Nenhum associado encontrado com ID: " +id);
+		if(!associado.get().isAtivo()) throw new EntityNullEception("Associado inativo");
 		return associado.get();
 	}
 	

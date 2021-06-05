@@ -50,7 +50,20 @@ public class Associado implements Serializable{
 	@JsonIgnore
 	private boolean ativo = true;
 	
-	public Associado() {}	
+	public Associado() {}		
+	
+	public Associado(String nome,String cpf) {
+		this.nome = nome;
+		this.cpf = cpf;
+	}
+	
+	public Associado(String nome,String cpf,Status status) {
+		this.nome = nome;
+		this.cpf = cpf;
+		setStatus(status);
+	}
+
+
 
 	public Integer getId() {
 		return id;

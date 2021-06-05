@@ -88,7 +88,7 @@ public class PautaController {
 	}
 	
 	@ApiOperation(value="?time=yyyy_MM_dd_HH_mm        |Abrirá a votação, podendo ou não indicar o dia e horário de termino."
-																	+ "Por padrão é de 1 minuto.")
+																	+ "Por padrão a duração será de 1 minuto.")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 200, response = Pauta.class, message = "OK"),		   	    
 		})	

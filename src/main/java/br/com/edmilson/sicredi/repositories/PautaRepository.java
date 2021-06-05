@@ -11,4 +11,5 @@ public interface PautaRepository extends JpaRepository<Pauta, Integer>{
 
 	public List<Pauta> findAllByStatusPauta(Integer statusPauta);
 	public Optional<Pauta> findByTitulo(String titulo);
+	
 }

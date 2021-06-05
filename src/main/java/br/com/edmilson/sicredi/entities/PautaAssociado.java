@@ -5,12 +5,14 @@ import java.time.LocalDateTime;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.edmilson.sicredi.entities.enums.StatusPauta;
 import br.com.edmilson.sicredi.entities.enums.Voto;
 @Entity
+@Table(name="pauta_associado", schema = "pauta")
 public class PautaAssociado implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
