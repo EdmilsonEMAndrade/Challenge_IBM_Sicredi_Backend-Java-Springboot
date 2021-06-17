@@ -17,6 +17,7 @@ Exercício proposto pela IBM baseado em um dos testes aplicados pelo Sicredi env
 - Java
 - Spring Boot
 - JPA / Hibernate
+- JUnit
 - Maven
 - Swagger
 ## Implantação em produção
