@@ -36,7 +36,10 @@ public class PautaController {
 	@ApiOperation(value="Achar pauta por id.")
 	@GetMapping("/id/{id}")
 	public ResponseEntity<Pauta> pautaById(@PathVariable int id){
+		System.out.println(id);
 		Pauta pauta = service.acharPauta(id);
+		System.out.println("Voltou");
+		System.out.println(pauta);
 		return ResponseEntity.ok(pauta);
 	}
 	

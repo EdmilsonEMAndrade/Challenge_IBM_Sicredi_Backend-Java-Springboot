@@ -101,7 +101,7 @@ public class PautaServiceTest {
 		Associado associado = new Associado("Votante","40340847077");
 		associadoService.salvar(associado);	
 		assertTimeout(Duration.ofSeconds(1), ()->{
-			Pauta result = service.abrirVotacao(1,"");
+			Pauta result = service.abrirVotacao(1,null);
 			assertTrue(result.getStatusPauta().equals(StatusPauta.IN_VOTING));			
 		});
 	}
@@ -118,6 +118,5 @@ public class PautaServiceTest {
 				service.votar(dto.getId(),"82092289004" , "sim");							
 			});
 		});
-	}	
-	
+	}		
 }

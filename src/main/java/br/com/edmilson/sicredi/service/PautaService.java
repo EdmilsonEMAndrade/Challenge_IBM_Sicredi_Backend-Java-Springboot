@@ -2,8 +2,10 @@ package br.com.edmilson.sicredi.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -65,10 +67,12 @@ public class PautaService {
 	}	
 
 	public Pauta abrirVotacao(int id, String time) {
-		Pauta pauta = acharPauta(id);		
+		Pauta pauta = acharPauta(id);	
+		
 		if (!pauta.getStatusPauta().equals(StatusPauta.OPEN))
-			throw new ValidacaoException("Pauta já foi aberta para votação");		
-		if(!time.isEmpty()) {			
+			throw new ValidacaoException("Pauta já foi aberta para votação");
+		
+		if(time != null) {			
 			if(!Time.isFormatTime(time)) throw new ValidacaoException("O tempo precisa estar no formado yyyy_MM_dd_HH_mm");
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 			LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
@@ -79,10 +83,12 @@ public class PautaService {
 			}
 			pauta.abrirVotacao(dateTime);			
 		}else {
+			System.out.println("else");
 			pauta.abrirVotacao();
 		}
-		criandoVotacao(pauta);
-		this.salvar(pauta);
+		Set<PautaAssociado> votacao = criandoVotacao(pauta);
+		pauta.setPautaAssociado(votacao);
+		repository.save(pauta);
 		return pauta;
 	}
 
@@ -97,8 +103,8 @@ public class PautaService {
 		if (associado.getStatus() == Status.UNABLE_TO_VOTE)
 			throw new ValidacaoException("Associado não está apto a votar");
 
-		for (PautaAssociado x : pauta.getPautaAssociado()) {
-			if (x.getAssociado() == associado) {
+		for (PautaAssociado x : pauta.getPautaAssociado()) {			
+			if (x.getAssociado().equals(associado)) {
 				if (x.getVoto() == Voto.SEM_VOTO) {
 					if (voto.equalsIgnoreCase("sim")) {
 						x.setVoto(Voto.SIM);
@@ -170,12 +176,14 @@ public class PautaService {
 		return pautas.stream().map(x -> new PautaDTO(x)).collect(Collectors.toList());		
 	}
 	
-	private void criandoVotacao(Pauta pauta) {
+	private Set<PautaAssociado> criandoVotacao(Pauta pauta) {
 		List<Associado> aptosVotar = associadoRepository.findAllByStatus(1);
 		if (aptosVotar.isEmpty())
 			throw new ValidacaoException("Não pode ser aberta a votação, pois não temos associados aptos à votar");
-		for (Associado x : aptosVotar) {			
-			votacaoRepository.save(new PautaAssociado(x, pauta));
+		Set<PautaAssociado> list = new HashSet<>();
+		for (Associado x : aptosVotar) {				
+			list.add(new PautaAssociado(x, pauta));
 		}
+		return list;
 	}
 }

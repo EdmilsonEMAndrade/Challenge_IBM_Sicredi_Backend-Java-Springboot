@@ -6,8 +6,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -49,7 +51,7 @@ public class Pauta implements Serializable{
 	@Column(name="encerramento_votacao")
     private LocalDateTime encerrarVotacao;
 	
-	@OneToMany(mappedBy = "id.pauta")
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "id.pauta")
 	private Set<PautaAssociado> pautaAssociado = new HashSet<>();
 	
 	@JsonIgnore
