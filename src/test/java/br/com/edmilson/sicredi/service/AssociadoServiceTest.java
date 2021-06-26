@@ -18,8 +18,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.enums.Status;
-import br.com.edmilson.sicredi.service.excepitions.EntityNullEception;
-import br.com.edmilson.sicredi.service.excepitions.ValidacaoException;
+import br.com.edmilson.sicredi.service.exceptions.EntityNullEception;
+import br.com.edmilson.sicredi.service.exceptions.ValidacaoException;
 
 
 @ExtendWith(SpringExtension.class)

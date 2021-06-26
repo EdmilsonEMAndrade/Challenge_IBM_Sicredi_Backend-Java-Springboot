@@ -1,18 +1,20 @@
 package br.com.edmilson.sicredi.controllers.handler;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class StandardError implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	private Integer status;
 	private String mensagem;
-	private Long timeStamp;
+	private LocalDateTime timeStamp;
 	
-	public StandardError(Integer status, String mensagem, Long timeStamp) {
+	public StandardError(Integer status, String mensagem) {
 		this.status = status;
 		this.mensagem = mensagem;
-		this.timeStamp = timeStamp;
+		this.timeStamp = LocalDateTime.now();
 	}
 
 	public Integer getStatus() {
@@ -31,12 +33,12 @@ public class StandardError implements Serializable{
 		this.mensagem = mensagem;
 	}
 
-	public Long getTimeStamp() {
+	public LocalDateTime getTimeStamp() {
 		return timeStamp;
 	}
 
-	public void setTimeStamp(Long timeStamp) {
+	public void setTimeStamp(LocalDateTime timeStamp) {
 		this.timeStamp = timeStamp;
-	}
+	}	
 	
 }

@@ -4,14 +4,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import br.com.edmilson.sicredi.auxclass.ApiResponse;
 import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.enums.Status;
 import br.com.edmilson.sicredi.repositories.AssociadoRepository;
-import br.com.edmilson.sicredi.service.excepitions.EntityNullEception;
-import br.com.edmilson.sicredi.service.excepitions.ValidacaoException;
-import br.com.edmilson.sicredi.service.excepitions.IllegalArgumentException;
+import br.com.edmilson.sicredi.service.exceptions.EntityNullEception;
+import br.com.edmilson.sicredi.service.exceptions.ValidacaoException;
 import br.com.edmilson.sicredi.validation.CPF;
 
 @Service
@@ -38,8 +40,15 @@ public class AssociadoService {
 	
 	public Associado salvar(Associado associado) {
 		if(associado.getNome().isEmpty()) throw new ValidacaoException("Precisa preencher o nome");
-		validarCPF(associado.getCpf());
-		if(repository.existsByCpf(associado.getCpf())) throw new ValidacaoException("CPF "+ CPF.imprimeCPF(associado.getCpf()) +" já está cadastrado");		
+		validarCPF(associado.getCpf());		
+		if(repository.existsByCpf(associado.getCpf())) throw new ValidacaoException("CPF "+ CPF.imprimeCPF(associado.getCpf()) +" já está cadastrado");
+		
+		if(associado.getStatus()==null) {
+			RestTemplate restTemplate = new RestTemplate();
+			String url = "https://user-info.herokuapp.com/users/"+associado.getCpf(); 
+			ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
+			associado.setStatus(Status.valueOf(response.getStatus()));
+		}
 		return repository.save(associado);		
 	}	
 	

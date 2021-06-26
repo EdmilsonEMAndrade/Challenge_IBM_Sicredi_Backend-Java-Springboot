@@ -39,9 +39,8 @@ public class Associado implements Serializable{
 	private String cpf;
 
 	@ApiModelProperty(value = "Veridicação se o associado pode votar (ABLE_TO_VOTE)"
-			+ "	ou não pode votar (UNABLE_TO_VOTE).")
-	@Column(nullable=false)
-	private Integer status = 1;
+			+ "	ou não pode votar (UNABLE_TO_VOTE).")	
+	private Integer status;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "id.associado")

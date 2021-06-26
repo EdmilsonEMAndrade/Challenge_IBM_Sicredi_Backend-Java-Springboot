@@ -18,8 +18,8 @@ import br.com.edmilson.sicredi.dto.PautaDTO;
 import br.com.edmilson.sicredi.entities.Associado;
 import br.com.edmilson.sicredi.entities.Pauta;
 import br.com.edmilson.sicredi.entities.enums.StatusPauta;
-import br.com.edmilson.sicredi.service.excepitions.EntityNullEception;
-import br.com.edmilson.sicredi.service.excepitions.ValidacaoException;
+import br.com.edmilson.sicredi.service.exceptions.EntityNullEception;
+import br.com.edmilson.sicredi.service.exceptions.ValidacaoException;
 
 
 @ExtendWith(SpringExtension.class)

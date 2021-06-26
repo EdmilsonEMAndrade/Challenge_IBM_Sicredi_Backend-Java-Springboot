@@ -67,7 +67,7 @@ public class AssociadoController {
 		return ResponseEntity.ok(associado);
 	}
 	
-	@ApiOperation(value="Cadastra um novo associado. Por padrão recebe status:ABLE_TO_VOTE")
+	@ApiOperation(value="Cadastra um novo associado. O status (ABLE_TO_VOTE ou UNABLE_TO_VOTE) pode ser informado na hora do cadastro, mas por padrão é informado pela API externa.")
 	@ApiResponses(value = {	
 		    @ApiResponse(code = 201, response = Associado.class, message = "Created"),
 		   	    

@@ -20,8 +20,8 @@ import br.com.edmilson.sicredi.entities.enums.Voto;
 import br.com.edmilson.sicredi.repositories.AssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaAssociadoRepository;
 import br.com.edmilson.sicredi.repositories.PautaRepository;
-import br.com.edmilson.sicredi.service.excepitions.EntityNullEception;
-import br.com.edmilson.sicredi.service.excepitions.ValidacaoException;
+import br.com.edmilson.sicredi.service.exceptions.EntityNullEception;
+import br.com.edmilson.sicredi.service.exceptions.ValidacaoException;
 import br.com.edmilson.sicredi.validation.CPF;
 import br.com.edmilson.sicredi.validation.Time;
 
