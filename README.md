@@ -11,6 +11,7 @@ Exercício proposto pela IBM baseado em um dos testes aplicados pelo Sicredi env
   <br/>
   <p>docker run -d -p 8080:8080 edmilsonemandrade/java-springboot-ibm-desafio</p>
 </div>
+
 ## Métodos Http
 <img src="./asset/metodosHttp.PNG" alt="Métodos Http"/>
 
