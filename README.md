@@ -7,7 +7,8 @@ Exercício proposto pela IBM baseado em um dos testes aplicados pelo Sicredi env
 
 ##
 <div align='center'>
-<img src="./asset/docker.png"  height="100" alt="docker"/> 
+<img src="./asset/docker.png"  height="50" alt="docker"/> 
+  <br/>
   <p>docker run -d -p 8080:8080 edmilsonemandrade/java-springboot-ibm-desafio</p>
 </div>
 ## Métodos Http
