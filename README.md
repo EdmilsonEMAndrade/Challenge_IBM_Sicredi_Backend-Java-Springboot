@@ -6,7 +6,7 @@
 Exercício proposto pela IBM baseado em um dos testes aplicados pelo Sicredi envolvendo uma aplicação backend em Springboot.
 
 ##
-<img src="./asset/doker.png" alt="docker"/> docker run -d -p 8080:8080 edmilsonemandrade/java-springboot-ibm-desafio
+<img src="./asset/docker.png"  alt="docker"/> docker run -d -p 8080:8080 edmilsonemandrade/java-springboot-ibm-desafio
 
 ## Métodos Http
 <img src="./asset/metodosHttp.PNG" alt="Métodos Http"/>
